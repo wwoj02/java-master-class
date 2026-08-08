@@ -23,6 +23,7 @@ public class CarBooking {
         this.car = car;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.price = price;
         this.bookedAt = LocalDate.now();
     }
 
