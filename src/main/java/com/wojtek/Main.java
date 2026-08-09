@@ -32,10 +32,10 @@ public class Main {
             switch (choice) {
                 case 1 -> newBooking(scanner);
                 case 2 -> deleteBooking(scanner);
-                case 3 -> viewUserBookings(scanner);
-                case 4 -> viewAllBookings();
-                case 5 -> viewAvailableCars(scanner);
-                case 6 -> viewElectricCars(scanner);
+                case 3 -> getUserBookings(scanner);
+                case 4 -> getAllBookings();
+                case 5 -> getAvailableCars();
+                case 6 -> getElectricCars();
                 case 7 -> viewAllUsers();
                 case 8 -> System.out.println("Goodbye!");
             }
@@ -69,42 +69,35 @@ public class Main {
         }
     }
 
-    static void viewElectricCars(Scanner scanner) {
-        System.out.println("Enter start date");
-        LocalDate startDate = getDate(scanner);
-        System.out.print("Enter end date");
-        LocalDate endDate = getDate(scanner);
+    static void getElectricCars() {
+        Car[] electricCars = carBookingService.getAvailableElectricCars();
 
-        Car[] electricCars = carBookingService.getAllElectricCars(startDate, endDate);
-
+        System.out.println("All available electric cars: ");
         for (Car car : electricCars) {
             System.out.println(car);
         }
     }
 
-    static void viewAvailableCars(Scanner scanner) {
-        System.out.println("Enter start date");
-        LocalDate startDate = getDate(scanner);
-
-        System.out.println("Enter end date");
-        LocalDate endDate = getDate(scanner);
-
-        Car[] availableCars = carBookingService.getAllAvailableCars(startDate, endDate);
+    static void getAvailableCars() {
+        Car[] availableCars = carBookingService.getAllAvailableCars();
 
         for (Car car : availableCars) {
             System.out.println(car);
         }
     }
 
-    static void viewAllBookings() {
+    static void getAllBookings() {
         CarBooking[] bookings = carBookingService.getAllBookings();
-        for (CarBooking booking : bookings) System.out.println(booking);
+        for (CarBooking booking : bookings) {
+            if(booking == null) break;
+            System.out.println(booking);
+        }
     }
 
-    static void viewUserBookings(Scanner scanner) {
+    static void getUserBookings(Scanner scanner) {
         System.out.print("Enter user id: (first view all the users then [copy & paste] here)");
         String userId = scanner.nextLine();
-        CarBooking[] userBookings = carBookingService.getAllBookingsOfSpecificUser(UUID.fromString(userId));
+        CarBooking[] userBookings = carBookingService.getAllBookingsByUserId(UUID.fromString(userId));
         for (CarBooking booking : userBookings) {
             System.out.println(booking);
         }
@@ -114,6 +107,7 @@ public class Main {
         System.out.print("Enter booking id: (first view all bookings then [copy & paste] here)");
         String bookingId = scanner.nextLine();
 
+
         boolean deleted = carBookingService.deleteBooking(UUID.fromString(bookingId));
         if(deleted) System.out.println(String.format(
                 "Deleted the booking id: %s now car is available again!", bookingId
@@ -121,10 +115,10 @@ public class Main {
     }
 
     static void newBooking(Scanner scanner) {
-        System.out.print("Enter user id: (first view all users then [copy & paste] here)");
+        System.out.print("Enter user id: (first view all users then [copy & paste] here): ");
         String userId = scanner.nextLine();
 
-        System.out.print("Enter car id: (first view all available cars then [copy & paste] here)");
+        System.out.print("Enter car id: (first view all available cars then [copy & paste] here): ");
         String carId = scanner.nextLine();
 
         System.out.println("Start Date");
@@ -146,7 +140,7 @@ public class Main {
 
 //    helper methods
     private static LocalDate getDate(Scanner scanner) {
-        System.out.print("Enter date: year month day (ex. 2020 5 23)");
+        System.out.print("Enter date: year month day (ex. 2020 5 23): ");
         String startDate = scanner.nextLine();
 
         String[] sD = startDate.split(" ");
