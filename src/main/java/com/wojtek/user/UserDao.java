@@ -24,7 +24,7 @@ public class UserDao {
                 return user;
             }
         }
-        throw new RuntimeException("Couldn't find a user!");
+        return null;
     }
 
     public User getUserByName(String name) {
@@ -33,6 +33,6 @@ public class UserDao {
                 return user;
             }
         }
-        throw new RuntimeException("Couldn't find a user!");
+        return null;
     }
 }

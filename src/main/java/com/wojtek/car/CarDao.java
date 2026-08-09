@@ -25,7 +25,7 @@ public class CarDao {
                 return car;
             }
         }
-        throw new RuntimeException("Couldn't find a car!");
+        return null;
     }
     public Car getCarByRegNumber(String regNumber) {
         for (Car car : cars) {
@@ -33,7 +33,7 @@ public class CarDao {
                 return car;
             }
         }
-        throw new RuntimeException("Couldn't find a car!");
+        return null;
     }
 
 }
