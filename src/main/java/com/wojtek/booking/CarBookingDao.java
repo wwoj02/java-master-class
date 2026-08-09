@@ -7,7 +7,7 @@ public class CarBookingDao {
     private static int nextAvailableIndex;
 
     static {
-        carBookings = new CarBooking[0];
+        carBookings = new CarBooking[10];
         nextAvailableIndex = 0;
     }
 
@@ -17,7 +17,7 @@ public class CarBookingDao {
 
     public CarBooking bookCar(CarBooking request) {
         if (nextAvailableIndex == carBookings.length) {
-            CarBooking[] newCarBookingsArray = new CarBooking[carBookings.length + 1];
+            CarBooking[] newCarBookingsArray = new CarBooking[carBookings.length * 2];
             for (int i = 0; i < carBookings.length; i++) {
                 newCarBookingsArray[i] = carBookings[i];
             }
@@ -29,29 +29,13 @@ public class CarBookingDao {
     }
 
     public boolean deleteBooking(UUID bookingId) {
-        boolean found = false;
         for (int i = 0; i < carBookings.length; i++) {
+            if(carBookings[i] == null) break;
             if (carBookings[i].getId().equals(bookingId)) {
-                carBookings[i] = null;
-                found = true;
-                break;
+                carBookings[i].setStatus(BookingStatus.CANCELLED);
+                return true;
             }
         }
-
-        if(!found) return false;
-
-        CarBooking[] newCarBookingsArray = new CarBooking[carBookings.length - 1];
-
-        int tmpIterator = 0;
-        for (CarBooking carBooking : carBookings) {
-            if (carBooking != null && tmpIterator < newCarBookingsArray.length) {
-                newCarBookingsArray[tmpIterator++] = carBooking;
-            }
-        }
-
-        carBookings = newCarBookingsArray;
-        nextAvailableIndex--;
-
-        return true;
+        return false;
     }
 }

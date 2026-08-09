@@ -21,41 +21,33 @@ public class CarBookingService {
         User user = userService.getUserById(userId);
         if (user == null) throw new NoSuchElementException("User not found!");
 
-        Car car = carService.getCarById(carId);
-        if (car == null) throw new NoSuchElementException("Car not found");
+        Car carFromDao = carService.getCarById(carId);
+        if (carFromDao == null) throw new NoSuchElementException("Car not found");
 
-        if (startDate.isBefore(LocalDate.now()) || endDate.isBefore(startDate))
+        if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
             throw new IllegalArgumentException("Wrong date");
 
-        CarBooking[] carBookings = carBookingDao.getAllCarBookings();
+        Car[] availableCars = getAllAvailableCars();
 
-        long days = getNumberOfDays(startDate, endDate);
-        if(days == 0) {
-            throw new IllegalArgumentException("You can't book a car for 0 days!");
-        }
-
-        BigDecimal totalPriceOfRental = getTotalRentalPrice(
-                days,
-                car.getRentalPricePerDay()
-        );
-
-        if (carBookings.length == 0) {
-            CarBooking carBooking = new CarBooking(
-                    user, car, startDate, endDate, totalPriceOfRental);
-            carBookingDao.bookCar(carBooking);
-            return carBooking;
-        }
-
-        for (CarBooking carBooking : carBookings) {
-            if(isOverlapping(startDate, endDate, carBooking.getStartDate(), carBooking.getEndDate())) {
-                if(carBooking.getCar().equals(car)) {
-                    throw new IllegalArgumentException("Car is not available");
-                }
+        boolean isBooked = true;
+        for (Car car : availableCars) {
+            if (carFromDao.equals(car)) {
+                isBooked = false;
+                break;
             }
         }
 
+        if(isBooked) throw new RuntimeException("Car is already booked!");
+
+        long days = getNumberOfDays(startDate, endDate);
+
+        BigDecimal totalPriceOfRental = getTotalRentalPrice(
+                days,
+                carFromDao.getRentalPricePerDay()
+        );
+
         CarBooking carBooking = new CarBooking(
-                user, car, startDate, endDate, totalPriceOfRental);
+                user, carFromDao, startDate, endDate, totalPriceOfRental, BookingStatus.ACTIVE);
         carBookingDao.bookCar(carBooking);
 
         return carBooking;
@@ -69,12 +61,13 @@ public class CarBookingService {
     }
 
 //    FR-03
-    public CarBooking[] getAllBookingsOfSpecificUser(UUID userId) {
+    public CarBooking[] getAllBookingsByUserId(UUID userId) {
         CarBooking[] allBookings = carBookingDao.getAllCarBookings();
 
         int numberOfUserBookings = 0;
 
         for (CarBooking carBooking : allBookings) {
+            if (carBooking == null) break;
             if (carBooking.getUser().getId().equals(userId)) numberOfUserBookings++;
         }
 
@@ -84,6 +77,7 @@ public class CarBookingService {
         int tmpIterator = 0;
         CarBooking[] allUserBookings = new CarBooking[numberOfUserBookings];
         for (int i = 0; i < allBookings.length; i++) {
+            if(allBookings[i] == null) break;
             if (allBookings[i].getUser().getId().equals(userId)) {
                 allUserBookings[tmpIterator++] = allBookings[i];
             }
@@ -97,24 +91,44 @@ public class CarBookingService {
     }
 
 //    FR-05
-    public Car[] getAllAvailableCars(LocalDate startDate, LocalDate endDate) {
-        if(startDate.isAfter(endDate)) throw new IllegalArgumentException("startDate cannot be after endDate!");
-        if(startDate.isBefore(LocalDate.now())) throw new IllegalArgumentException("you cannot check availability in the past!");
+    public Car[] getAllAvailableCars() {
 
         Car[] cars = carService.getAllCars();
-        CarBooking[] allBookings = carBookingDao.getAllCarBookings();
+        CarBooking[] carBookings = carBookingDao.getAllCarBookings();
 
-        CarBooking[] allBookingsWithinTheDate =
-                getAllBookingsWithinTheDate(allBookings, startDate, endDate);
+        int numberOfAvailableCars = cars.length;
 
-        if (allBookingsWithinTheDate.length == 0) return cars;
+        for (Car car : cars)  {
+            for (CarBooking carBooking : carBookings) {
+                if (carBooking == null) break;
+                if(carBooking.getCar().equals(car) && carBooking.getStatus().equals(BookingStatus.ACTIVE)) {
+                    numberOfAvailableCars--;
+                    break;
+                }
+            }
+        }
 
-        return getAvailableCars(allBookingsWithinTheDate, cars);
+        Car[] availableCarsArr = new Car[numberOfAvailableCars];
+        int tmpIterator = 0;
+        for (Car car : cars) {
+            boolean isBooked = false;
+            for (CarBooking carBooking : carBookings) {
+                if(carBooking == null) break;
+                if(carBooking.getCar().equals(car) && carBooking.getStatus().equals(BookingStatus.ACTIVE)) {
+                    isBooked = true;
+                    break;
+                }
+            }
+            if(!isBooked) availableCarsArr[tmpIterator++] = car;
+            if (tmpIterator == numberOfAvailableCars) break;
+        }
+
+        return availableCarsArr;
     }
 
 //    FR-06
-    public Car[] getAllElectricCars(LocalDate startDate, LocalDate endDate) {
-        Car[] cars = getAllAvailableCars(startDate, endDate);
+    public Car[] getAvailableElectricCars() {
+        Car[] cars = getAllAvailableCars();
 
         int numberOfElectricCars = 0;
         for (Car car : cars) {
@@ -133,74 +147,11 @@ public class CarBookingService {
 
 //    helper methods
 
-    private boolean isOverlapping(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
-        return start1.isBefore(end2) && start2.isBefore(end1);
-    }
-
     private BigDecimal getTotalRentalPrice(long numberOfDays, BigDecimal price) {
         return price.multiply(BigDecimal.valueOf(numberOfDays));
     }
 
     private long getNumberOfDays(LocalDate startDate, LocalDate endDate) {
         return ChronoUnit.DAYS.between(startDate, endDate);
-    }
-
-    private CarBooking[] getAllBookingsWithinTheDate(CarBooking[] allBookings, LocalDate startDate, LocalDate endDate) {
-        int numberOfBookingsWhereDateMatch = 0;
-        for (int i = 0; i < allBookings.length; i++) {
-            LocalDate startDateOfBooking = allBookings[i].getStartDate();
-            LocalDate endDateOfBooking = allBookings[i].getEndDate();
-
-            if (isOverlapping(startDate, endDate, startDateOfBooking, endDateOfBooking)) {
-                numberOfBookingsWhereDateMatch++;
-            }
-        }
-
-        CarBooking[] allBookingsWithinTheDate = new CarBooking[numberOfBookingsWhereDateMatch];
-        int tmpIterator = 0;
-
-        for (int i = 0; i < allBookings.length; i++) {
-            LocalDate startDateOfBooking = allBookings[i].getStartDate();
-            LocalDate endDateOfBooking = allBookings[i].getEndDate();
-
-            if (isOverlapping(startDate, endDate, startDateOfBooking, endDateOfBooking)) {
-                allBookingsWithinTheDate[tmpIterator++] = allBookings[i];
-            }
-        }
-
-        return allBookingsWithinTheDate;
-    }
-
-    private Car[] getAvailableCars(CarBooking[] allBookingsWithinTheDate, Car[] cars) {
-        int numberOfAvailableCars = 0;
-
-        for (Car car : cars) {
-            boolean match = true;
-
-            for (CarBooking carBooking : allBookingsWithinTheDate) {
-                if (carBooking.getCar().equals(car)) {
-                    match = false;
-                    break;
-                }
-            }
-            if(match) numberOfAvailableCars++;
-        }
-
-        Car[] availableCars = new Car[numberOfAvailableCars];
-        int tmpIterator = 0;
-
-        for (Car car : cars) {
-            boolean match = true;
-
-            for (CarBooking carBooking : allBookingsWithinTheDate) {
-                if (carBooking.getCar().equals(car)) {
-                    match = false;
-                    break;
-                }
-            }
-            if(match) availableCars[tmpIterator++] = car;
-        }
-
-        return availableCars;
     }
 }

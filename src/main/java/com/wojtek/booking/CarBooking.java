@@ -15,15 +15,17 @@ public class CarBooking {
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal price;
+    private BookingStatus status;
     private final LocalDate bookedAt;
 
-    public CarBooking(User user, Car car, LocalDate startDate, LocalDate endDate, BigDecimal price) {
+    public CarBooking(User user, Car car, LocalDate startDate, LocalDate endDate, BigDecimal price, BookingStatus status) {
         this.id = UUID.randomUUID();
         this.user = user;
         this.car = car;
         this.startDate = startDate;
         this.endDate = endDate;
         this.price = price;
+        this.status = status;
         this.bookedAt = LocalDate.now();
     }
 
@@ -71,6 +73,14 @@ public class CarBooking {
         this.price = price;
     }
 
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
+    }
+
     public LocalDate getBookedAt() {
         return bookedAt;
     }
@@ -79,12 +89,12 @@ public class CarBooking {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CarBooking that = (CarBooking) o;
-        return Objects.equals(id, that.id) && Objects.equals(user, that.user) && Objects.equals(car, that.car) && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate) && Objects.equals(price, that.price) && Objects.equals(bookedAt, that.bookedAt);
+        return Objects.equals(id, that.id) && Objects.equals(user, that.user) && Objects.equals(car, that.car) && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate) && Objects.equals(price, that.price) && status == that.status && Objects.equals(bookedAt, that.bookedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, car, startDate, endDate, price, bookedAt);
+        return Objects.hash(id, user, car, startDate, endDate, price, status, bookedAt);
     }
 
     @Override
@@ -96,6 +106,7 @@ public class CarBooking {
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", price=" + price +
+                ", status=" + status +
                 ", bookedAt=" + bookedAt +
                 '}';
     }
