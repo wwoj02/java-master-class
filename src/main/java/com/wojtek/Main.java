@@ -12,14 +12,15 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class Main {
-    final static UserService userService = new UserService();
-    final static CarService carService = new CarService();
-    final static CarBookingService carBookingService = new CarBookingService();
+    private final static UserService userService = new UserService();
+    private final static CarService carService = new CarService();
+    private final static CarBookingService carBookingService = new CarBookingService();
+    private final static Scanner scanner = new Scanner(System.in);
+
 
     public static void main(String[] args) {
 
         int choice = 0;
-        Scanner scanner = new Scanner(System.in);
 
         while(choice != 8) {
             menu();
@@ -30,9 +31,9 @@ public class Main {
                 choice = 0;
             }
             switch (choice) {
-                case 1 -> newBooking(scanner);
-                case 2 -> deleteBooking(scanner);
-                case 3 -> getUserBookings(scanner);
+                case 1 -> newBooking();
+                case 2 -> deleteBooking();
+                case 3 -> getUserBookings();
                 case 4 -> getAllBookings();
                 case 5 -> getAvailableCars();
                 case 6 -> getElectricCars();
@@ -94,7 +95,7 @@ public class Main {
         }
     }
 
-    static void getUserBookings(Scanner scanner) {
+    static void getUserBookings() {
         System.out.print("Enter user id: (first view all the users then [copy & paste] here)");
         String userId = scanner.nextLine();
         CarBooking[] userBookings = carBookingService.getAllBookingsByUserId(UUID.fromString(userId));
@@ -103,7 +104,7 @@ public class Main {
         }
     }
 
-    static void deleteBooking(Scanner scanner) {
+    static void deleteBooking() {
         System.out.print("Enter booking id: (first view all bookings then [copy & paste] here)");
         String bookingId = scanner.nextLine();
 
@@ -114,7 +115,7 @@ public class Main {
         ));
     }
 
-    static void newBooking(Scanner scanner) {
+    static void newBooking() {
         System.out.print("Enter user id: (first view all users then [copy & paste] here): ");
         String userId = scanner.nextLine();
 
@@ -122,10 +123,10 @@ public class Main {
         String carId = scanner.nextLine();
 
         System.out.println("Start Date");
-        LocalDate startDate = getDate(scanner);
+        LocalDate startDate = getDate();
 
         System.out.println("End date");
-        LocalDate endDate = getDate(scanner);
+        LocalDate endDate = getDate();
 
         CarBooking booking = carBookingService.bookCar(
                 UUID.fromString(userId),
@@ -139,7 +140,7 @@ public class Main {
     }
 
 //    helper methods
-    private static LocalDate getDate(Scanner scanner) {
+    private static LocalDate getDate() {
         System.out.print("Enter date: year month day (ex. 2020 5 23): ");
         String startDate = scanner.nextLine();
 
