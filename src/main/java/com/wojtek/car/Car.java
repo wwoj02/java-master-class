@@ -59,12 +59,12 @@ public class Car {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Car car = (Car) o;
-        return isElectric == car.isElectric && Objects.equals(id, car.id) && Objects.equals(regNumber, car.regNumber) && Objects.equals(rentalPricePerDay, car.rentalPricePerDay) && brand == car.brand;
+        return Objects.equals(id, car.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, regNumber, rentalPricePerDay, brand, isElectric);
+        return Objects.hash(id);
     }
 
     @Override
