@@ -16,7 +16,7 @@ import java.util.UUID;
 public class CarBookingService {
     private final UserService userService = new UserService(new UserArrayDataAccessService());
     private final CarService carService = new CarService(new CarArrayDataAccessService());
-    private final CarBookingDao carBookingDao = new CarBookingArrayDataAccessService();
+    private final CarBookingDao carBookingDao = new CarBookingFileDataAccessService("data.dat");
 
 
 

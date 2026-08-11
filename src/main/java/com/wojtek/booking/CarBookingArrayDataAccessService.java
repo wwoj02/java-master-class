@@ -26,7 +26,7 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
     }
 
     @Override
-    public CarBooking saveBooking(CarBooking request) {
+    public boolean saveBooking(CarBooking request) {
         if (nextAvailableIndex == carBookings.length) {
             CarBooking[] newCarBookingsArray = new CarBooking[carBookings.length * 2];
             for (int i = 0; i < carBookings.length; i++) {
@@ -36,7 +36,7 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
         }
 
         carBookings[nextAvailableIndex++] = request;
-        return request;
+        return true;
     }
 
     @Override

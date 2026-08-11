@@ -7,7 +7,7 @@ public interface CarBookingDao {
 
     CarBooking findBookingById(UUID bookingId);
 
-    CarBooking saveBooking(CarBooking request);
+    boolean saveBooking(CarBooking request);
 
     boolean deleteBooking(UUID bookingId);
 }
