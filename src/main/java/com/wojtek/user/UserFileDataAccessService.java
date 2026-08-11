@@ -1,6 +1,11 @@
 package com.wojtek.user;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 public class UserFileDataAccessService implements UserDao {
@@ -10,7 +15,7 @@ public class UserFileDataAccessService implements UserDao {
         this.pathfile = pathfile;
 
         File file = new File(pathfile);
-        if(!file.exists()) {
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -18,7 +23,7 @@ public class UserFileDataAccessService implements UserDao {
             }
         }
 
-        if(file.length() == 0) {
+        if (file.length() == 0) {
             updateFile(new User[]{
                     new User("Wojtek"),
                     new User("Josh"),
@@ -30,7 +35,7 @@ public class UserFileDataAccessService implements UserDao {
 
     @Override
     public User[] getUsers() {
-        try(ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
             return (User[]) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve the data", e);
@@ -40,7 +45,7 @@ public class UserFileDataAccessService implements UserDao {
     @Override
     public User findUserById(UUID id) {
         for (User user : getUsers()) {
-            if(user.getId().equals(id)) {
+            if (user.getId().equals(id)) {
                 return user;
             }
         }
@@ -49,7 +54,7 @@ public class UserFileDataAccessService implements UserDao {
 
     public User getUserByName(String name) {
         for (User user : getUsers()) {
-            if(user.getName().equals(name)) {
+            if (user.getName().equals(name)) {
                 return user;
             }
         }
@@ -59,7 +64,7 @@ public class UserFileDataAccessService implements UserDao {
     private void updateFile(User[] users) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(users);
-        }  catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Couldn't save data to the file.", e);
         }
     }

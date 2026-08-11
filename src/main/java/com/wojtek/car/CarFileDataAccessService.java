@@ -1,8 +1,12 @@
 package com.wojtek.car;
 
-import com.wojtek.booking.CarBooking;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.UUID;
 
