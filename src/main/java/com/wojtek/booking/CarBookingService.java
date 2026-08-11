@@ -1,10 +1,8 @@
 package com.wojtek.booking;
 
 import com.wojtek.car.Car;
-import com.wojtek.car.CarFileDataAccessService;
 import com.wojtek.car.CarService;
 import com.wojtek.user.User;
-import com.wojtek.user.UserFileDataAccessService;
 import com.wojtek.user.UserService;
 
 import java.math.BigDecimal;
@@ -14,13 +12,17 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class CarBookingService {
-    private final UserService userService = new UserService(new UserFileDataAccessService("users.dat"));
-    private final CarService carService = new CarService(new CarFileDataAccessService("cars.dat"));
-    private final CarBookingDao carBookingDao = new CarBookingFileDataAccessService("data.dat");
+    private final UserService userService;
+    private final CarService carService;
+    private final CarBookingDao carBookingDao;
 
+    public CarBookingService(UserService userService, CarService carService, CarBookingDao carBookingDao) {
+        this.userService = userService;
+        this.carService = carService;
+        this.carBookingDao = carBookingDao;
+    }
 
-
-//    FR-01
+    //    FR-01
     public CarBooking bookCar(UUID userId, UUID carId, LocalDate startDate, LocalDate endDate) {
         User user = userService.findUserById(userId);
         if (user == null) throw new NoSuchElementException("User not found!");
