@@ -3,8 +3,10 @@ package com.wojtek;
 import com.wojtek.booking.CarBooking;
 import com.wojtek.booking.CarBookingService;
 import com.wojtek.car.Car;
+import com.wojtek.car.CarArrayDataAccessService;
 import com.wojtek.car.CarService;
 import com.wojtek.user.User;
+import com.wojtek.user.UserArrayDataAccessService;
 import com.wojtek.user.UserService;
 
 import java.time.LocalDate;
@@ -12,8 +14,8 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class Main {
-    private final static UserService userService = new UserService();
-    private final static CarService carService = new CarService();
+    private final static UserService userService = new UserService(new UserArrayDataAccessService());
+    private final static CarService carService = new CarService(new CarArrayDataAccessService());
     private final static CarBookingService carBookingService = new CarBookingService();
     private final static Scanner scanner = new Scanner(System.in);
 

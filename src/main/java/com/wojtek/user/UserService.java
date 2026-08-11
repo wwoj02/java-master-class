@@ -5,8 +5,8 @@ import java.util.UUID;
 public class UserService {
     private final UserDao userDao;
 
-    public UserService() {
-        userDao = new UserDao();
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
     }
 
 //    FR-07
@@ -14,8 +14,8 @@ public class UserService {
         return userDao.getUsers();
     }
 
-    public User getUserById(UUID id) {
-        return userDao.getUserById(id);
+    public User findUserById(UUID id) {
+        return userDao.findUserById(id);
     }
 
 }

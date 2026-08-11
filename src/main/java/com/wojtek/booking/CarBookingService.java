@@ -1,8 +1,10 @@
 package com.wojtek.booking;
 
 import com.wojtek.car.Car;
+import com.wojtek.car.CarArrayDataAccessService;
 import com.wojtek.car.CarService;
 import com.wojtek.user.User;
+import com.wojtek.user.UserArrayDataAccessService;
 import com.wojtek.user.UserService;
 
 import java.math.BigDecimal;
@@ -12,16 +14,18 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class CarBookingService {
-    private final UserService userService = new UserService();
-    private final CarService carService = new CarService();
-    private final CarBookingDao carBookingDao = new CarBookingDao();
+    private final UserService userService = new UserService(new UserArrayDataAccessService());
+    private final CarService carService = new CarService(new CarArrayDataAccessService());
+    private final CarBookingDao carBookingDao = new CarBookingArrayDataAccessService();
+
+
 
 //    FR-01
     public CarBooking bookCar(UUID userId, UUID carId, LocalDate startDate, LocalDate endDate) {
-        User user = userService.getUserById(userId);
+        User user = userService.findUserById(userId);
         if (user == null) throw new NoSuchElementException("User not found!");
 
-        Car carFromDao = carService.getCarById(carId);
+        Car carFromDao = carService.findCarById(carId);
         if (carFromDao == null) throw new NoSuchElementException("Car not found");
 
         if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
@@ -48,7 +52,7 @@ public class CarBookingService {
 
         CarBooking carBooking = new CarBooking(
                 user, carFromDao, startDate, endDate, totalPriceOfRental, BookingStatus.ACTIVE);
-        carBookingDao.bookCar(carBooking);
+        carBookingDao.saveBooking(carBooking);
 
         return carBooking;
     }
@@ -62,7 +66,7 @@ public class CarBookingService {
 
 //    FR-03
     public CarBooking[] getAllBookingsByUserId(UUID userId) {
-        CarBooking[] allBookings = carBookingDao.getAllCarBookings();
+        CarBooking[] allBookings = carBookingDao.getBookings();
 
         int numberOfUserBookings = 0;
 
@@ -87,14 +91,14 @@ public class CarBookingService {
 
 //    FR-04
     public CarBooking[] getAllBookings() {
-        return carBookingDao.getAllCarBookings();
+        return carBookingDao.getBookings();
     }
 
 //    FR-05
     public Car[] getAllAvailableCars() {
 
-        Car[] cars = carService.getAllCars();
-        CarBooking[] carBookings = carBookingDao.getAllCarBookings();
+        Car[] cars = carService.getCars();
+        CarBooking[] carBookings = carBookingDao.getBookings();
 
         int numberOfAvailableCars = cars.length;
 
@@ -143,6 +147,10 @@ public class CarBookingService {
         }
 
         return availableElectricCars;
+    }
+
+    public CarBooking findBookingById(UUID bookingId) {
+        return carBookingDao.findBookingById(bookingId);
     }
 
 //    helper methods

@@ -2,37 +2,8 @@ package com.wojtek.user;
 
 import java.util.UUID;
 
-public class UserDao {
-    private static final User[] users;
+public interface UserDao {
+    User[] getUsers();
 
-    static {
-        users = new User[]{
-                new User("Wojtek"),
-                new User("Josh"),
-                new User("Thomas"),
-                new User("Oscar"),
-        };
-    }
-
-    public User[] getUsers() {
-        return users;
-    }
-
-    public User getUserById(UUID id) {
-        for (User user : users) {
-            if(user.getId().equals(id)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    public User getUserByName(String name) {
-        for (User user : users) {
-            if(user.getName().equals(name)) {
-                return user;
-            }
-        }
-        return null;
-    }
+    User findUserById(UUID id);
 }
