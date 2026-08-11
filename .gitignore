@@ -2,4 +2,8 @@ java-master-class.iml
 out/
 /.idea/
 /target
+
+# .dat files
 data.dat
+cars.dat
+users.dat
