@@ -2,9 +2,11 @@ package com.wojtek.booking;
 
 import com.wojtek.car.Car;
 import com.wojtek.car.CarArrayDataAccessService;
+import com.wojtek.car.CarFileDataAccessService;
 import com.wojtek.car.CarService;
 import com.wojtek.user.User;
 import com.wojtek.user.UserArrayDataAccessService;
+import com.wojtek.user.UserFileDataAccessService;
 import com.wojtek.user.UserService;
 
 import java.math.BigDecimal;
@@ -14,8 +16,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class CarBookingService {
-    private final UserService userService = new UserService(new UserArrayDataAccessService());
-    private final CarService carService = new CarService(new CarArrayDataAccessService());
+    private final UserService userService = new UserService(new UserFileDataAccessService("users.dat"));
+    private final CarService carService = new CarService(new CarFileDataAccessService("cars.dat"));
     private final CarBookingDao carBookingDao = new CarBookingFileDataAccessService("data.dat");
 
 
