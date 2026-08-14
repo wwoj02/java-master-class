@@ -18,9 +18,9 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
 
     @Override
     public CarBooking findBookingById(UUID bookingId) {
-        for (CarBooking booking : carBookings) {
-            if(booking == null) break;
-            if(booking.getId().equals(bookingId)) return booking;
+        for (int i = 0; i < nextAvailableIndex; i++) {
+
+            if(carBookings[i].getId().equals(bookingId)) return carBookings[i];
         }
         return null;
     }
@@ -41,8 +41,7 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        for (int i = 0; i < carBookings.length; i++) {
-            if(carBookings[i] == null) break;
+        for (int i = 0; i < nextAvailableIndex; i++) {
             if (carBookings[i].getId().equals(bookingId)) {
                 carBookings[i].setStatus(BookingStatus.CANCELLED);
                 return true;
