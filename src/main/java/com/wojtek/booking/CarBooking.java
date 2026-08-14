@@ -3,12 +3,17 @@ package com.wojtek.booking;
 import com.wojtek.car.Car;
 import com.wojtek.user.User;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-public class CarBooking {
+public class CarBooking implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final UUID id;
     private User user;
     private Car car;

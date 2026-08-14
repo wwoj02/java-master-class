@@ -5,18 +5,15 @@ import java.util.UUID;
 public class CarService {
     private final CarDao carDao;
 
-    public CarService() {
-        carDao = new CarDao();
+    public CarService(CarDao carDao) {
+        this.carDao = carDao;
     }
 
-    public Car[] getAllCars() {
-        return carDao.getAllCars();
+    public Car[] getCars() {
+        return carDao.getCars();
     }
 
-    public Car getCarById(UUID carId) {
-        return carDao.getCarById(carId);
-    }
-    public Car getCarByRegNumber(String regNumber) {
-        return carDao.getCarByRegNumber(regNumber);
+    public Car findCarById(UUID carId) {
+        return carDao.findCarById(carId);
     }
 }
