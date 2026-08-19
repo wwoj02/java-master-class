@@ -1,9 +1,10 @@
 package com.wojtek.booking;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CarBookingDao {
-    CarBooking[] getBookings();
+    List<CarBooking> getBookings();
 
     CarBooking findBookingById(UUID bookingId);
 

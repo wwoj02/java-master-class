@@ -1,49 +1,40 @@
 package com.wojtek.booking;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CarBookingArrayDataAccessService implements CarBookingDao {
-    private static CarBooking[] carBookings;
-    private static int nextAvailableIndex;
+    private static List<CarBooking> carBookings;
 
     static {
-        carBookings = new CarBooking[10];
-        nextAvailableIndex = 0;
+        carBookings = new ArrayList<>();
     }
 
     @Override
-    public CarBooking[] getBookings() {
+    public List<CarBooking> getBookings() {
         return carBookings;
     }
 
     @Override
     public CarBooking findBookingById(UUID bookingId) {
-        for (int i = 0; i < nextAvailableIndex; i++) {
-
-            if(carBookings[i].getId().equals(bookingId)) return carBookings[i];
+        for (CarBooking carBooking : carBookings) {
+            if(carBooking.getId().equals(bookingId)) return carBooking;
         }
         return null;
     }
 
     @Override
     public boolean saveBooking(CarBooking request) {
-        if (nextAvailableIndex == carBookings.length) {
-            CarBooking[] newCarBookingsArray = new CarBooking[carBookings.length * 2];
-            for (int i = 0; i < carBookings.length; i++) {
-                newCarBookingsArray[i] = carBookings[i];
-            }
-            carBookings = newCarBookingsArray;
-        }
-
-        carBookings[nextAvailableIndex++] = request;
+        carBookings.add(request);
         return true;
     }
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        for (int i = 0; i < nextAvailableIndex; i++) {
-            if (carBookings[i].getId().equals(bookingId)) {
-                carBookings[i].setStatus(BookingStatus.CANCELLED);
+        for (CarBooking carBooking : carBookings) {
+            if (carBooking.getId().equals(bookingId)) {
+                carBooking.setStatus(BookingStatus.CANCELLED);
                 return true;
             }
         }

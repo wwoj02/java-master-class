@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserFileDataAccessService implements UserDao {
@@ -24,19 +26,19 @@ public class UserFileDataAccessService implements UserDao {
         }
 
         if (file.length() == 0) {
-            updateFile(new User[]{
+            updateFile(new ArrayList<>(List.of(
                     new User("Wojtek"),
                     new User("Josh"),
                     new User("Thomas"),
-                    new User("Oscar"),
-            });
+                    new User("Oscar")
+            )));
         }
     }
 
     @Override
-    public User[] getUsers() {
+    public List<User> getUsers() {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
-            return (User[]) objectInputStream.readObject();
+            return (List<User>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve the data", e);
         }
@@ -61,7 +63,7 @@ public class UserFileDataAccessService implements UserDao {
         return null;
     }
 
-    private void updateFile(User[] users) {
+    private void updateFile(List<User> users) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(users);
         } catch (IOException e) {

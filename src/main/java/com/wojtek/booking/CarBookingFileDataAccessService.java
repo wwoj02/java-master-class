@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CarBookingFileDataAccessService implements CarBookingDao {
@@ -25,14 +27,14 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
         }
 
         if(file.length() == 0) {
-            updateFile(new CarBooking[0]);
+            updateFile(new ArrayList<>());
         }
     }
 
     @Override
-    public CarBooking[] getBookings() {
+    public List<CarBooking> getBookings() {
         try(ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
-            return (CarBooking[]) objectInputStream.readObject();
+            return (List<CarBooking>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve the data from the file.");
         }
@@ -40,7 +42,7 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
 
     @Override
     public CarBooking findBookingById(UUID bookingId) {
-        CarBooking[] bookings = getBookings();
+        List<CarBooking> bookings = getBookings();
         for (CarBooking booking : bookings) {
             if (booking.getId().equals(bookingId)) return booking;
         }
@@ -49,42 +51,29 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
 
     @Override
     public boolean saveBooking(CarBooking request) {
-        CarBooking[] bookings = getBookings();
-        CarBooking[] newBookingsArr = new CarBooking[bookings.length + 1];
-        for (int i = 0; i < bookings.length; i++) {
-            newBookingsArr[i] = bookings[i];
-        }
-        newBookingsArr[newBookingsArr.length - 1] = request;
+        List<CarBooking> bookings = getBookings();
+        bookings.add(request);
 
-        return updateFile(newBookingsArr);
+        return updateFile(bookings);
     }
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        CarBooking[] bookings = getBookings();
+        List<CarBooking> bookings = getBookings();
 
-        boolean bookingExists = false;
-        for (int i = 0; i < bookings.length; i++) {
-            if (bookings[i].getId().equals(bookingId)) bookingExists = true;
+        for (CarBooking carBooking : bookings) {
+            if(carBooking.getId().equals(bookingId)) {
+                bookings.remove(carBooking);
+                updateFile(bookings);
+                return true;
+            }
         }
-
-        if(!bookingExists) return false;
-
-        CarBooking[] newBookingsArr = new CarBooking[bookings.length - 1];
-
-        int iterator = 0;
-        for (int i = 0; i < bookings.length; i++) {
-            if(bookings[i].getId().equals(bookingId)) continue;
-            newBookingsArr[iterator++] = bookings[i];
-        }
-
-        updateFile(newBookingsArr);
-        return true;
+        return false;
     }
 
 //    helper methods
 
-    private boolean updateFile(CarBooking[] newBookingsArr) {
+    private boolean updateFile(List<CarBooking> newBookingsArr) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(newBookingsArr);
             return true;
