@@ -8,6 +8,8 @@ import com.wojtek.user.UserService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -33,7 +35,7 @@ public class CarBookingService {
         if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
             throw new IllegalArgumentException("Wrong date");
 
-        Car[] availableCars = getAllAvailableCars();
+        List<Car> availableCars = getAllAvailableCars();
 
         boolean isBooked = true;
         for (Car car : availableCars) {
@@ -67,88 +69,55 @@ public class CarBookingService {
     }
 
 //    FR-03
-    public CarBooking[] getAllBookingsByUserId(UUID userId) {
-        CarBooking[] allBookings = carBookingDao.getBookings();
+    public List<CarBooking> getAllBookingsByUserId(UUID userId) {
+        List<CarBooking> allBookings = carBookingDao.getBookings();
 
-        int numberOfUserBookings = 0;
-
+        List<CarBooking> allUserBookings = new ArrayList<>();
         for (CarBooking carBooking : allBookings) {
-            if (carBooking == null) break;
-            if (carBooking.getUser().getId().equals(userId)) numberOfUserBookings++;
-        }
-
-        if (numberOfUserBookings == 0)
-            return new CarBooking[0];
-
-        int tmpIterator = 0;
-        CarBooking[] allUserBookings = new CarBooking[numberOfUserBookings];
-        for (int i = 0; i < allBookings.length; i++) {
-            if(allBookings[i] == null) break;
-            if (allBookings[i].getUser().getId().equals(userId)) {
-                allUserBookings[tmpIterator++] = allBookings[i];
+            if (carBooking.getUser().getId().equals(userId)) {
+                allUserBookings.add(carBooking);
             }
         }
         return allUserBookings;
     }
 
 //    FR-04
-    public CarBooking[] getAllBookings() {
+    public List<CarBooking> getAllBookings() {
         return carBookingDao.getBookings();
     }
 
 //    FR-05
-    public Car[] getAllAvailableCars() {
+    public List<Car> getAllAvailableCars() {
 
-        Car[] cars = carService.getCars();
-        CarBooking[] carBookings = carBookingDao.getBookings();
+        List<Car> cars = carService.getCars();
+        List<CarBooking> carBookings = carBookingDao.getBookings();
 
-        int numberOfAvailableCars = cars.length;
+        List<Car> availableCarsArr = new ArrayList<>();
 
-        for (Car car : cars)  {
-            for (CarBooking carBooking : carBookings) {
-                if (carBooking == null) break;
-                if(carBooking.getCar().equals(car) && carBooking.getStatus().equals(BookingStatus.ACTIVE)) {
-                    numberOfAvailableCars--;
-                    break;
-                }
-            }
-        }
-
-        Car[] availableCarsArr = new Car[numberOfAvailableCars];
-        int tmpIterator = 0;
         for (Car car : cars) {
             boolean isBooked = false;
             for (CarBooking carBooking : carBookings) {
-                if(carBooking == null) break;
                 if(carBooking.getCar().equals(car) && carBooking.getStatus().equals(BookingStatus.ACTIVE)) {
                     isBooked = true;
                     break;
                 }
             }
-            if(!isBooked) availableCarsArr[tmpIterator++] = car;
-            if (tmpIterator == numberOfAvailableCars) break;
+            if(!isBooked) availableCarsArr.add(car);
         }
 
         return availableCarsArr;
     }
 
 //    FR-06
-    public Car[] getAvailableElectricCars() {
-        Car[] cars = getAllAvailableCars();
+    public List<Car> getAvailableElectricCars() {
+        List<Car> cars = getAllAvailableCars();
 
-        int numberOfElectricCars = 0;
+        List<Car> electricCars = new ArrayList<>();
         for (Car car : cars) {
-            if(car.isElectric()) numberOfElectricCars++;
+            if(car.isElectric()) electricCars.add(car);
         }
 
-        Car[] availableElectricCars = new Car[numberOfElectricCars];
-
-        int tmpIterator = 0;
-        for (Car car : cars) {
-            if(car.isElectric()) availableElectricCars[tmpIterator++] = car;
-        }
-
-        return availableElectricCars;
+        return electricCars;
     }
 
     public CarBooking findBookingById(UUID bookingId) {

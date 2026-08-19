@@ -1,5 +1,6 @@
 package com.wojtek.car;
 
+import java.util.List;
 import java.util.UUID;
 
 public class CarService {
@@ -9,7 +10,7 @@ public class CarService {
         this.carDao = carDao;
     }
 
-    public Car[] getCars() {
+    public List<Car> getCars() {
         return carDao.getCars();
     }
 

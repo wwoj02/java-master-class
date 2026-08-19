@@ -1,21 +1,23 @@
 package com.wojtek.user;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserArrayDataAccessService implements UserDao {
-    private static final User[] users;
+    private static final List<User> users;
 
     static {
-        users = new User[]{
+        users = new ArrayList<>(List.of(
                 new User("Wojtek"),
                 new User("Josh"),
                 new User("Thomas"),
-                new User("Oscar"),
-        };
+                new User("Oscar")
+                ));
     }
 
     @Override
-    public User[] getUsers() {
+    public List<User> getUsers() {
         return users;
     }
 

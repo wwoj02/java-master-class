@@ -12,6 +12,7 @@ import com.wojtek.user.UserFileDataAccessService;
 import com.wojtek.user.UserService;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -68,17 +69,18 @@ public class Main {
     }
 
     static void viewAllUsers() {
-        User[] users = userService.getUsers();
-        for (int i = 0; i < users.length; i++) {
+        List<User> users = userService.getUsers();
+        int counter = 1;
+        for (User user : users) {
             System.out.println(String.format(
                     "%d) %s",
-                    i+1, users[i]
+                    counter++, user
             ));
         }
     }
 
     static void getElectricCars() {
-        Car[] electricCars = carBookingService.getAvailableElectricCars();
+        List<Car> electricCars = carBookingService.getAvailableElectricCars();
 
         System.out.println("All available electric cars: ");
         for (Car car : electricCars) {
@@ -87,7 +89,7 @@ public class Main {
     }
 
     static void getAvailableCars() {
-        Car[] availableCars = carBookingService.getAllAvailableCars();
+        List<Car> availableCars = carBookingService.getAllAvailableCars();
 
         for (Car car : availableCars) {
             System.out.println(car);
@@ -95,9 +97,8 @@ public class Main {
     }
 
     static void getAllBookings() {
-        CarBooking[] bookings = carBookingService.getAllBookings();
+        List<CarBooking> bookings = carBookingService.getAllBookings();
         for (CarBooking booking : bookings) {
-            if(booking == null) break;
             System.out.println(booking);
         }
     }
@@ -105,7 +106,7 @@ public class Main {
     static void getUserBookings() {
         System.out.print("Enter user id: (first view all the users then [copy & paste] here)");
         String userId = scanner.nextLine();
-        CarBooking[] userBookings = carBookingService.getAllBookingsByUserId(UUID.fromString(userId));
+        List<CarBooking> userBookings = carBookingService.getAllBookingsByUserId(UUID.fromString(userId));
         for (CarBooking booking : userBookings) {
             System.out.println(booking);
         }
