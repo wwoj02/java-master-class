@@ -34,7 +34,7 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
     public boolean deleteBooking(UUID bookingId) {
         for (CarBooking carBooking : carBookings) {
             if (carBooking.getId().equals(bookingId)) {
-                carBookings.remove(carBooking);
+                carBooking.setStatus(BookingStatus.CANCELLED);
                 return true;
             }
         }
