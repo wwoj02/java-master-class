@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CarBookingFileDataAccessService implements CarBookingDao {
     private final String pathfile;
@@ -42,11 +43,10 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
 
     @Override
     public CarBooking findBookingById(UUID bookingId) {
-        List<CarBooking> bookings = getBookings();
-        for (CarBooking booking : bookings) {
-            if (booking.getId().equals(bookingId)) return booking;
-        }
-        return null;
+        return getBookings().stream()
+                .filter(carBooking -> carBooking.getId().equals(bookingId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -59,16 +59,16 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        List<CarBooking> bookings = getBookings();
+        List<CarBooking> allBookings = getBookings();
+        List<CarBooking> bookings = allBookings.stream()
+                .filter(booking -> !booking.getId().equals(bookingId))
+                .collect(Collectors.toList());
 
-        for (CarBooking carBooking : bookings) {
-            if(carBooking.getId().equals(bookingId)) {
-                bookings.remove(carBooking);
-                updateFile(bookings);
-                return true;
-            }
-        }
-        return false;
+
+        if (allBookings.size() == bookings.size()) return false;
+
+        updateFile(bookings);
+        return true;
     }
 
 //    helper methods

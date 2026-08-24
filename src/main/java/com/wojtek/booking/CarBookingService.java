@@ -8,10 +8,10 @@ import com.wojtek.user.UserService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CarBookingService {
     private final UserService userService;
@@ -35,17 +35,10 @@ public class CarBookingService {
         if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
             throw new IllegalArgumentException("Wrong date");
 
-        List<Car> availableCars = getAllAvailableCars();
+        boolean isBooked = getAllAvailableCars().stream()
+                .anyMatch(carFromDao::equals);
 
-        boolean isBooked = true;
-        for (Car car : availableCars) {
-            if (carFromDao.equals(car)) {
-                isBooked = false;
-                break;
-            }
-        }
-
-        if(isBooked) throw new RuntimeException("Car is already booked!");
+        if(!isBooked) throw new RuntimeException("Car is already booked!");
 
         long days = getNumberOfDays(startDate, endDate);
 
@@ -56,6 +49,7 @@ public class CarBookingService {
 
         CarBooking carBooking = new CarBooking(
                 user, carFromDao, startDate, endDate, totalPriceOfRental, BookingStatus.ACTIVE);
+
         carBookingDao.saveBooking(carBooking);
 
         return carBooking;
@@ -70,15 +64,9 @@ public class CarBookingService {
 
 //    FR-03
     public List<CarBooking> getAllBookingsByUserId(UUID userId) {
-        List<CarBooking> allBookings = carBookingDao.getBookings();
-
-        List<CarBooking> allUserBookings = new ArrayList<>();
-        for (CarBooking carBooking : allBookings) {
-            if (carBooking.getUser().getId().equals(userId)) {
-                allUserBookings.add(carBooking);
-            }
-        }
-        return allUserBookings;
+        return carBookingDao.getBookings().stream()
+                .filter(booking -> booking.getUser().getId().equals(userId))
+                .collect(Collectors.toList());
     }
 
 //    FR-04
@@ -88,36 +76,18 @@ public class CarBookingService {
 
 //    FR-05
     public List<Car> getAllAvailableCars() {
-
-        List<Car> cars = carService.getCars();
-        List<CarBooking> carBookings = carBookingDao.getBookings();
-
-        List<Car> availableCarsArr = new ArrayList<>();
-
-        for (Car car : cars) {
-            boolean isBooked = false;
-            for (CarBooking carBooking : carBookings) {
-                if(carBooking.getCar().equals(car) && carBooking.getStatus().equals(BookingStatus.ACTIVE)) {
-                    isBooked = true;
-                    break;
-                }
-            }
-            if(!isBooked) availableCarsArr.add(car);
-        }
-
-        return availableCarsArr;
+        return carService.getCars().stream()
+                .filter(car -> getAllBookings().stream()
+                        .noneMatch(carBooking ->
+                                carBooking.getCar().equals(car) && carBooking.getStatus() == BookingStatus.ACTIVE))
+                .collect(Collectors.toList());
     }
 
 //    FR-06
     public List<Car> getAvailableElectricCars() {
-        List<Car> cars = getAllAvailableCars();
-
-        List<Car> electricCars = new ArrayList<>();
-        for (Car car : cars) {
-            if(car.isElectric()) electricCars.add(car);
-        }
-
-        return electricCars;
+        return getAllAvailableCars().stream()
+                .filter(Car::isElectric)
+                .collect(Collectors.toList());
     }
 
     public CarBooking findBookingById(UUID bookingId) {

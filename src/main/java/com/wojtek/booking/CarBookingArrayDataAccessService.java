@@ -18,10 +18,10 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
 
     @Override
     public CarBooking findBookingById(UUID bookingId) {
-        for (CarBooking carBooking : carBookings) {
-            if(carBooking.getId().equals(bookingId)) return carBooking;
-        }
-        return null;
+        return carBookings.stream()
+                .filter(carBooking -> carBooking.getId().equals(bookingId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -32,12 +32,12 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        for (CarBooking carBooking : carBookings) {
-            if (carBooking.getId().equals(bookingId)) {
-                carBooking.setStatus(BookingStatus.CANCELLED);
-                return true;
-            }
-        }
-        return false;
+        return carBookings.stream()
+                .filter(carBooking -> carBooking.getId().equals(bookingId))
+                .findFirst()
+                .map(carBooking -> {
+                    carBooking.setStatus(BookingStatus.CANCELLED);
+                    return true;
+                }).orElse(false);
     }
 }

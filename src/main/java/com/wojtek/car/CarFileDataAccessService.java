@@ -39,7 +39,8 @@ public class CarFileDataAccessService implements CarDao {
 
     @Override
     public List<Car> getCars() {
-        try (ObjectInputStream objectOutputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
+        try (ObjectInputStream objectOutputStream =
+                     new ObjectInputStream(new FileInputStream(pathfile))) {
             return (List<Car>) objectOutputStream.readObject();
         }  catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve data from the file.", e);
@@ -48,17 +49,16 @@ public class CarFileDataAccessService implements CarDao {
 
     @Override
     public Car findCarById(UUID carId) {
-        for (Car car : getCars()) {
-            if(car.getId().equals(carId)) {
-                return car;
-            }
-        }
-        return null;
+        return getCars().stream()
+                .filter(car -> car.getId().equals(carId))
+                .findFirst()
+                .orElse(null);
     }
 
 //    helper method
     private void updateFile(List<Car> cars) {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
+        try (ObjectOutputStream objectOutputStream =
+                     new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(cars);
         }  catch (IOException e) {
             throw new RuntimeException("Couldn't save data to the file.", e);

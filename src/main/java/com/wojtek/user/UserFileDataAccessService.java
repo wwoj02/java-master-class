@@ -37,7 +37,8 @@ public class UserFileDataAccessService implements UserDao {
 
     @Override
     public List<User> getUsers() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
+        try (ObjectInputStream objectInputStream =
+                     new ObjectInputStream(new FileInputStream(pathfile))) {
             return (List<User>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve the data", e);
@@ -46,25 +47,22 @@ public class UserFileDataAccessService implements UserDao {
 
     @Override
     public User findUserById(UUID id) {
-        for (User user : getUsers()) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-        return null;
+        return getUsers().stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     public User getUserByName(String name) {
-        for (User user : getUsers()) {
-            if (user.getName().equals(name)) {
-                return user;
-            }
-        }
-        return null;
+        return getUsers().stream()
+                .filter(user -> user.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     private void updateFile(List<User> users) {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
+        try (ObjectOutputStream objectOutputStream =
+                     new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(users);
         } catch (IOException e) {
             throw new RuntimeException("Couldn't save data to the file.", e);
