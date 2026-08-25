@@ -62,7 +62,7 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
         List<CarBooking> allBookings = getBookings();
         List<CarBooking> bookings = allBookings.stream()
                 .filter(booking -> !booking.getId().equals(bookingId))
-                .collect(Collectors.toList());
+                .toList();
 
 
         if (allBookings.size() == bookings.size()) return false;

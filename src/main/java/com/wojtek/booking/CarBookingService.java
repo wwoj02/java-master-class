@@ -66,7 +66,7 @@ public class CarBookingService {
     public List<CarBooking> getAllBookingsByUserId(UUID userId) {
         return carBookingDao.getBookings().stream()
                 .filter(booking -> booking.getUser().getId().equals(userId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 //    FR-04
@@ -76,8 +76,9 @@ public class CarBookingService {
 
 //    FR-05
     public List<Car> getAllAvailableCars() {
+        List<CarBooking> allBookings = getAllBookings();
         return carService.getCars().stream()
-                .filter(car -> getAllBookings().stream()
+                .filter(car -> allBookings.stream()
                         .noneMatch(carBooking ->
                                 carBooking.getCar().equals(car) && carBooking.getStatus() == BookingStatus.ACTIVE))
                 .collect(Collectors.toList());
