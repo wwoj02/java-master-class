@@ -2,6 +2,7 @@ package com.wojtek.booking;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CarBookingArrayDataAccessService implements CarBookingDao {
@@ -17,11 +18,10 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
     }
 
     @Override
-    public CarBooking findBookingById(UUID bookingId) {
-        for (CarBooking carBooking : carBookings) {
-            if(carBooking.getId().equals(bookingId)) return carBooking;
-        }
-        return null;
+    public Optional<CarBooking> findBookingById(UUID bookingId) {
+        return carBookings.stream()
+                .filter(carBooking -> carBooking.getId().equals(bookingId))
+                .findFirst();
     }
 
     @Override
@@ -32,12 +32,13 @@ public class CarBookingArrayDataAccessService implements CarBookingDao {
 
     @Override
     public boolean deleteBooking(UUID bookingId) {
-        for (CarBooking carBooking : carBookings) {
-            if (carBooking.getId().equals(bookingId)) {
-                carBooking.setStatus(BookingStatus.CANCELLED);
-                return true;
-            }
-        }
-        return false;
+        return carBookings.stream()
+                .filter(carBooking -> carBooking.getId().equals(bookingId))
+                .findFirst()
+                .map(carBooking -> {
+                    carBooking.setStatus(BookingStatus.CANCELLED);
+                    return true;
+                })
+                .orElse(false);
     }
 }

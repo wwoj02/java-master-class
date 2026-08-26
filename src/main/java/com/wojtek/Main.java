@@ -80,36 +80,28 @@ public class Main {
     }
 
     static void getElectricCars() {
-        List<Car> electricCars = carBookingService.getAvailableElectricCars();
-
         System.out.println("All available electric cars: ");
-        for (Car car : electricCars) {
-            System.out.println(car);
-        }
+
+        carBookingService.getAvailableElectricCars()
+                .forEach(System.out::println);
     }
 
     static void getAvailableCars() {
-        List<Car> availableCars = carBookingService.getAllAvailableCars();
-
-        for (Car car : availableCars) {
-            System.out.println(car);
-        }
+        carBookingService.getAllAvailableCars()
+                .forEach(System.out::println);
     }
 
     static void getAllBookings() {
-        List<CarBooking> bookings = carBookingService.getAllBookings();
-        for (CarBooking booking : bookings) {
-            System.out.println(booking);
-        }
+        carBookingService.getAllBookings()
+                .forEach(System.out::println);
     }
 
     static void getUserBookings() {
         System.out.print("Enter user id: (first view all the users then [copy & paste] here)");
         String userId = scanner.nextLine();
-        List<CarBooking> userBookings = carBookingService.getAllBookingsByUserId(UUID.fromString(userId));
-        for (CarBooking booking : userBookings) {
-            System.out.println(booking);
-        }
+
+        carBookingService.getAllBookingsByUserId(UUID.fromString(userId))
+                .forEach(System.out::println);
     }
 
     static void deleteBooking() {

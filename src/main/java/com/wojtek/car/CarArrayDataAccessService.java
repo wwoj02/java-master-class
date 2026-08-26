@@ -3,6 +3,7 @@ package com.wojtek.car;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CarArrayDataAccessService implements CarDao {
@@ -23,12 +24,9 @@ public class CarArrayDataAccessService implements CarDao {
     }
 
     @Override
-    public Car findCarById(UUID carId) {
-        for (Car car : cars) {
-            if(car.getId().equals(carId)) {
-                return car;
-            }
-        }
-        return null;
+    public Optional<Car> findCarById(UUID carId) {
+        return cars.stream()
+                .filter(car -> car.getId().equals(carId))
+                .findFirst();
     }
 }

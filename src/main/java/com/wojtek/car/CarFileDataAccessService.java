@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CarFileDataAccessService implements CarDao {
@@ -39,7 +40,8 @@ public class CarFileDataAccessService implements CarDao {
 
     @Override
     public List<Car> getCars() {
-        try (ObjectInputStream objectOutputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
+        try (ObjectInputStream objectOutputStream =
+                     new ObjectInputStream(new FileInputStream(pathfile))) {
             return (List<Car>) objectOutputStream.readObject();
         }  catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Couldn't retrieve data from the file.", e);
@@ -47,18 +49,16 @@ public class CarFileDataAccessService implements CarDao {
     }
 
     @Override
-    public Car findCarById(UUID carId) {
-        for (Car car : getCars()) {
-            if(car.getId().equals(carId)) {
-                return car;
-            }
-        }
-        return null;
+    public Optional<Car> findCarById(UUID carId) {
+        return getCars().stream()
+                .filter(car -> car.getId().equals(carId))
+                .findFirst();
     }
 
 //    helper method
     private void updateFile(List<Car> cars) {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
+        try (ObjectOutputStream objectOutputStream =
+                     new ObjectOutputStream(new FileOutputStream(pathfile))) {
             objectOutputStream.writeObject(cars);
         }  catch (IOException e) {
             throw new RuntimeException("Couldn't save data to the file.", e);
