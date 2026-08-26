@@ -27,10 +27,7 @@ public class CarBookingService {
     //    FR-01
     public CarBooking bookCar(UUID userId, UUID carId, LocalDate startDate, LocalDate endDate) {
         User user = userService.findUserById(userId);
-        if (user == null) throw new NoSuchElementException("User not found!");
-
         Car carFromDao = carService.findCarById(carId);
-        if (carFromDao == null) throw new NoSuchElementException("Car not found");
 
         if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
             throw new IllegalArgumentException("Wrong date");
@@ -92,7 +89,8 @@ public class CarBookingService {
     }
 
     public CarBooking findBookingById(UUID bookingId) {
-        return carBookingDao.findBookingById(bookingId);
+        return carBookingDao.findBookingById(bookingId)
+                .orElseThrow(() -> new NoSuchElementException("Booking not found!"));
     }
 
 //    helper methods

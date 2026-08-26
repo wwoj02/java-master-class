@@ -2,6 +2,7 @@ package com.wojtek.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserArrayDataAccessService implements UserDao {
@@ -22,17 +23,15 @@ public class UserArrayDataAccessService implements UserDao {
     }
 
     @Override
-    public User findUserById(UUID id) {
+    public Optional<User> findUserById(UUID id) {
         return users.stream()
                 .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
-    public User getUserByName(String name) {
+    public Optional<User> getUserByName(String name) {
         return users.stream()
                 .filter(user -> user.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 }

@@ -1,6 +1,7 @@
 package com.wojtek.user;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class UserService {
@@ -16,7 +17,8 @@ public class UserService {
     }
 
     public User findUserById(UUID id) {
-        return userDao.findUserById(id);
+        return userDao.findUserById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found!"));
     }
 
 }

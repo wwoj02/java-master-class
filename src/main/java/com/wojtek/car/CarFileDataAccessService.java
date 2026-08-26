@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CarFileDataAccessService implements CarDao {
@@ -48,11 +49,10 @@ public class CarFileDataAccessService implements CarDao {
     }
 
     @Override
-    public Car findCarById(UUID carId) {
+    public Optional<Car> findCarById(UUID carId) {
         return getCars().stream()
                 .filter(car -> car.getId().equals(carId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
 //    helper method

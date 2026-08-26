@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,11 +43,10 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
     }
 
     @Override
-    public CarBooking findBookingById(UUID bookingId) {
+    public Optional<CarBooking> findBookingById(UUID bookingId) {
         return getBookings().stream()
                 .filter(carBooking -> carBooking.getId().equals(bookingId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override

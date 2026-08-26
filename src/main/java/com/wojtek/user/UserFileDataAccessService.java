@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserFileDataAccessService implements UserDao {
@@ -46,18 +47,16 @@ public class UserFileDataAccessService implements UserDao {
     }
 
     @Override
-    public User findUserById(UUID id) {
+    public Optional<User> findUserById(UUID id) {
         return getUsers().stream()
                 .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
-    public User getUserByName(String name) {
+    public Optional<User> getUserByName(String name) {
         return getUsers().stream()
                 .filter(user -> user.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     private void updateFile(List<User> users) {
