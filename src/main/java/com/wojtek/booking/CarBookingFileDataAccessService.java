@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,14 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
         this.file = file;
 
         if(file.length() == 0) {
+            updateFile(new ArrayList<>());
+        }
+    }
+
+    public CarBookingFileDataAccessService(Path filePath) {
+        this.file = filePath.toFile();
+
+        if (file.length() == 0) {
             updateFile(new ArrayList<>());
         }
     }
