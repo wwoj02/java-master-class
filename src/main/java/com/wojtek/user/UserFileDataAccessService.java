@@ -1,5 +1,7 @@
 package com.wojtek.user;
 
+import com.wojtek.exception.FileDataAccessException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,7 +39,7 @@ public class UserFileDataAccessService implements UserDao {
                      new ObjectInputStream(new FileInputStream(file.getPath()))) {
             return (List<User>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't retrieve the data", e);
+            throw new FileDataAccessException("Couldn't retrieve the data", e);
         }
     }
 
@@ -59,7 +61,7 @@ public class UserFileDataAccessService implements UserDao {
                      new ObjectOutputStream(new FileOutputStream(file.getPath()))) {
             objectOutputStream.writeObject(users);
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't save data to the file.", e);
+            throw new FileDataAccessException("Couldn't save data to the file.", e);
         }
     }
 }

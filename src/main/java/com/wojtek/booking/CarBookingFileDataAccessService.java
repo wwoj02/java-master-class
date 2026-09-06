@@ -1,6 +1,8 @@
 package com.wojtek.booking;
 
 
+import com.wojtek.exception.FileDataAccessException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,7 +44,7 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
         try(ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file.getPath()))) {
             return (List<CarBooking>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't retrieve the data from the file.");
+            throw new FileDataAccessException("Couldn't retrieve the data from the file.", e);
         }
     }
 
@@ -82,7 +84,7 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
             objectOutputStream.writeObject(newBookingsArr);
             return true;
         }  catch (IOException e) {
-            throw new RuntimeException("Couldn't save data to the file.", e);
+            throw new FileDataAccessException("Couldn't save data to the file.", e);
         }
     }
 }
