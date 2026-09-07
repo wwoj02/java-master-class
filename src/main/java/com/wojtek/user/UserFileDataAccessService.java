@@ -1,5 +1,7 @@
 package com.wojtek.user;
 
+import com.wojtek.exception.FileDataAccessException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,19 +14,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UserFileDataAccessService implements UserDao {
-    private final String pathfile;
+    private final File file;
 
-    public UserFileDataAccessService(String pathfile) {
-        this.pathfile = pathfile;
+    public UserFileDataAccessService(String resourceName) {
 
-        File file = new File(pathfile);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        File file = new File(
+                getClass().getClassLoader().getResource(resourceName).getPath());
+
+        this.file = file;
 
         if (file.length() == 0) {
             updateFile(new ArrayList<>(List.of(
@@ -39,10 +36,10 @@ public class UserFileDataAccessService implements UserDao {
     @Override
     public List<User> getUsers() {
         try (ObjectInputStream objectInputStream =
-                     new ObjectInputStream(new FileInputStream(pathfile))) {
+                     new ObjectInputStream(new FileInputStream(file.getPath()))) {
             return (List<User>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't retrieve the data", e);
+            throw new FileDataAccessException("Couldn't retrieve the data", e);
         }
     }
 
@@ -61,10 +58,10 @@ public class UserFileDataAccessService implements UserDao {
 
     private void updateFile(List<User> users) {
         try (ObjectOutputStream objectOutputStream =
-                     new ObjectOutputStream(new FileOutputStream(pathfile))) {
+                     new ObjectOutputStream(new FileOutputStream(file.getPath()))) {
             objectOutputStream.writeObject(users);
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't save data to the file.", e);
+            throw new FileDataAccessException("Couldn't save data to the file.", e);
         }
     }
 }

@@ -4,6 +4,6 @@ out/
 /target
 
 # .dat files
-data.dat
-cars.dat
-users.dat
+src/main/resources/data.dat
+src/main/resources/cars.dat
+src/main/resources/user.dat

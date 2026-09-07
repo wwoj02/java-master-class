@@ -2,6 +2,9 @@ package com.wojtek.booking;
 
 import com.wojtek.car.Car;
 import com.wojtek.car.CarService;
+import com.wojtek.exception.BookingNotFoundException;
+import com.wojtek.exception.CarAlreadyBookedException;
+import com.wojtek.exception.InvalidBookingDateException;
 import com.wojtek.user.User;
 import com.wojtek.user.UserService;
 
@@ -30,12 +33,12 @@ public class CarBookingService {
         Car carFromDao = carService.findCarById(carId);
 
         if (startDate.isBefore(LocalDate.now()) || !endDate.isAfter(startDate))
-            throw new IllegalArgumentException("Wrong date");
+            throw new InvalidBookingDateException("End date is after start date!");
 
         boolean isBooked = getAllAvailableCars().stream()
                 .anyMatch(carFromDao::equals);
 
-        if(!isBooked) throw new RuntimeException("Car is already booked!");
+        if(!isBooked) throw new CarAlreadyBookedException("Car is already booked!");
 
         long days = getNumberOfDays(startDate, endDate);
 
@@ -90,7 +93,7 @@ public class CarBookingService {
 
     public CarBooking findBookingById(UUID bookingId) {
         return carBookingDao.findBookingById(bookingId)
-                .orElseThrow(() -> new NoSuchElementException("Booking not found!"));
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found!"));
     }
 
 //    helper methods

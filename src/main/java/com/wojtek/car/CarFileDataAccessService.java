@@ -1,6 +1,8 @@
 package com.wojtek.car;
 
 
+import com.wojtek.exception.FileDataAccessException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,19 +16,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class CarFileDataAccessService implements CarDao {
-    private final String pathfile;
+    private final File file;
 
-    public CarFileDataAccessService(String pathfile) {
-        this.pathfile = pathfile;
+    public CarFileDataAccessService(String resourceName) {
 
-        File file = new File(pathfile);
-        if(!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        File file = new File(
+                getClass().getClassLoader().getResource(resourceName).getPath());
+
+        this.file = file;
 
         if(file.length() == 0) {
             updateFile(new ArrayList<>(List.of(
@@ -41,10 +38,10 @@ public class CarFileDataAccessService implements CarDao {
     @Override
     public List<Car> getCars() {
         try (ObjectInputStream objectOutputStream =
-                     new ObjectInputStream(new FileInputStream(pathfile))) {
+                     new ObjectInputStream(new FileInputStream(file.getPath()))) {
             return (List<Car>) objectOutputStream.readObject();
         }  catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't retrieve data from the file.", e);
+            throw new FileDataAccessException("Couldn't retrieve data from the file.", e);
         }
     }
 
@@ -58,10 +55,10 @@ public class CarFileDataAccessService implements CarDao {
 //    helper method
     private void updateFile(List<Car> cars) {
         try (ObjectOutputStream objectOutputStream =
-                     new ObjectOutputStream(new FileOutputStream(pathfile))) {
+                     new ObjectOutputStream(new FileOutputStream(file.getPath()))) {
             objectOutputStream.writeObject(cars);
         }  catch (IOException e) {
-            throw new RuntimeException("Couldn't save data to the file.", e);
+            throw new FileDataAccessException("Couldn't save data to the file.", e);
         }
     }
 }

@@ -1,7 +1,8 @@
 package com.wojtek.car;
 
+import com.wojtek.exception.CarNotFoundException;
+
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class CarService {
@@ -17,6 +18,6 @@ public class CarService {
 
     public Car findCarById(UUID carId) {
         return carDao.findCarById(carId)
-                .orElseThrow(() -> new NoSuchElementException("Car not found!"));
+                .orElseThrow(() -> new CarNotFoundException("Car not found!"));
     }
 }

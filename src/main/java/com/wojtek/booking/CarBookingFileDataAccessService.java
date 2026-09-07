@@ -1,12 +1,15 @@
 package com.wojtek.booking;
 
 
+import com.wojtek.exception.FileDataAccessException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,31 +17,34 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CarBookingFileDataAccessService implements CarBookingDao {
-    private final String pathfile;
+    private final File file;
 
-    public CarBookingFileDataAccessService(String pathfile) {
-        this.pathfile = pathfile;
+    public CarBookingFileDataAccessService(String resourceName) {
 
-        File file = new File(pathfile);
-        if(!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        File file = new File(
+                getClass().getClassLoader().getResource(resourceName).getPath());
+
+        this.file = file;
 
         if(file.length() == 0) {
             updateFile(new ArrayList<>());
         }
     }
 
+    public CarBookingFileDataAccessService(Path filePath) {
+        this.file = filePath.toFile();
+
+        if (file.length() == 0) {
+            updateFile(new ArrayList<>());
+        }
+    }
+
     @Override
     public List<CarBooking> getBookings() {
-        try(ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(pathfile))) {
+        try(ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file.getPath()))) {
             return (List<CarBooking>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't retrieve the data from the file.");
+            throw new FileDataAccessException("Couldn't retrieve the data from the file.", e);
         }
     }
 
@@ -74,11 +80,11 @@ public class CarBookingFileDataAccessService implements CarBookingDao {
 //    helper methods
 
     private boolean updateFile(List<CarBooking> newBookingsArr) {
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(pathfile))) {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file.getPath()))) {
             objectOutputStream.writeObject(newBookingsArr);
             return true;
         }  catch (IOException e) {
-            throw new RuntimeException("Couldn't save data to the file.", e);
+            throw new FileDataAccessException("Couldn't save data to the file.", e);
         }
     }
 }
